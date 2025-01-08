@@ -1,0 +1,29 @@
+<div class="parent-controller">
+    <input type="file" id="fileInput" #fileInput (change)="loadDocumentfromLocal()" />
+    <button (click)="loadDocument()" class="btn btn-primary">Load Document</button>
+    <button (click)="saveDocument()" class="btn btn-primary">Save WORD Document</button>
+    <button (click)="savePDFDocument()" class="btn btn-primary">Save PDF Document</button>
+</div>
+<div class="child-controller">
+    <button (click)="createElement()" class="btn btn-primary">Create Element</button>
+    <button (click)="selectText()" class="btn btn-primary">Replace Text</button>
+    <button (click)="viewMode()" class="btn btn-primary">View mode</button>
+    <button (click)="editDocMode()" class="btn btn-primary">Edit mode</button>
+</div>
+<div class="parent">
+    <div class="child1">
+        <tx-document-editor #documentEditor width="1000px" height="500px"
+            webSocketURL="wss://backend.textcontrol.com/TXWebSocket?access-token=gPBPPJ1PhqOECQBsJlVD" [editMode]="editMode"
+            [documentTargetMarkers]="documentTargetMarkers" [tableGridLines]="showGridLines">
+        </tx-document-editor>
+    </div>
+    <div class="child2" *ngIf="edited">
+        <label for="w3review">Add Expression Here:</label>
+    
+        <textarea [(ngModel)]="replacedValue" id="w3review" name="w3review" rows="4" cols="50">
+        Please add your expression here.
+        </textarea>
+    
+        <button (click)="addExpression()">Add replacement text</button>
+      </div>
+</div>

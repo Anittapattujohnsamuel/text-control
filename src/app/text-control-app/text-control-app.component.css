@@ -1,0 +1,30 @@
+.parent {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.child1 {
+    height: 100vh;
+    text-align: right;
+}
+
+.child2 {
+    height: 100vh;
+}
+
+button{
+    width: 100px;
+    height: 30px;
+    border: 1px solid;
+    background: darkblue;
+    border-radius: 10px;
+    color: white;
+    margin-top: 12px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.parent-controller button{
+    width: 150px;
+}
