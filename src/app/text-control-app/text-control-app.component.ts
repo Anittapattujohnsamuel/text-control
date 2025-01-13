@@ -1,8 +1,11 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DocumentEditorComponent } from '@txtextcontrol/tx-ng-document-editor';
+import { DocumentViewerComponent } from '@txtextcontrol/tx-ng-document-viewer';
+// import { Annotation } from '@txtextcontrol/tx-ng-document-viewer';
+// import { TXTextControlComponent, Annotation } from '@txtextcontrol/tx-angular';
 
 declare const TXTextControl: any;
-declare const onFileChange: any;
+declare const TXDocumentViewer: any;
 
 @Component({
   selector: 'app-text-control-app',
@@ -13,7 +16,7 @@ export class TextControlAppComponent implements OnInit {
   public content: string = '';  // To hold the content from the editor
   public showGridLines = true;
   public documentTargetMarkers = true;
-  public editMode = 'Edit';
+  public editMode = '0';
   public edited = false;
   public replacedValue: any;
 
@@ -22,11 +25,17 @@ export class TextControlAppComponent implements OnInit {
   // @ViewChild(DocumentEditorComponent, { static: true }) editor: DocumentEditorComponent | undefined;
   @ViewChild('document_editor')
   public documentEditor?: DocumentEditorComponent;
+  @ViewChild('document_viewer')
+  public documentViewer?: DocumentViewerComponent;
   @ViewChild('fileInput', { static: false }) fileInput!: ElementRef;
 
   constructor(private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    // TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
   }
 
   loadDocument() {
@@ -50,6 +59,7 @@ export class TextControlAppComponent implements OnInit {
       }
     };
     xhr.send();
+    TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
   }
 
   loadDocumentfromLocal() {
@@ -89,6 +99,7 @@ export class TextControlAppComponent implements OnInit {
         //alert(streamType);
         // load the document beginning at the Base64 data (split at comma)
         TXTextControl.loadDocument(streamType, e.target.result.split(',')[1]);
+        TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
       };
 
       // read the file and convert it to Base64
@@ -152,39 +163,28 @@ export class TextControlAppComponent implements OnInit {
   }
 
   createTable() {
-    //let  editor = TXTextControl.Editor;
-
-    let color = new TXTextControl.Color(23, 23, 34, 12)
-    TXTextControl.setFormattingPrinter("abcd");
-    //TXTextControl.setText("GREY")
-    TXTextControl.setTextBackColor("GREY")
-    // TXTextControl.showSideBar(TXTextControl.SideBarType.FieldNavigator);
-    let selection = TXTextControl.selection;
-    const tableCollection = TXTextControl.tables;
-
     let textField = new TXTextControl.TextField("I am a NON EDITABLE TEXT FIELD. A non-editable text box, also known as a read-only text box, is a user interface element that displays text which cannot be modified by the user. This type of text box is commonly used in applications and websites to present information that needs to be viewed but not altered. For example, non-editable text boxes are often used to display terms and conditions, user information, or system-generated data that should remain unchanged. The primary purpose of a non-editable text box is to ensure the integrity and consistency of the displayed information, preventing accidental or unauthorized modifications..\n");
     textField.editable = false;
+    // TXTextControl.editableRegions.highlightMode = 1;
+
     TXTextControl.addTextField(textField);
-    var html = "<p disabled='true' idea='xblridea'> This is some <b style='color:red'>editable Text</b> text.  An editable text field is a user interface element that allows users to input and modify text. It is commonly used in forms, applications, and websites to collect user data. Editable text fields are a fundamental component of user interfaces, providing a flexible and interactive way for users to communicate with digital systems.: Links work as<a href='http://mail.yahoo.com'> yahoo mail</a> </p>";
+
+    var html = "<p disabled='true' idea='xblridea' style='background-color:blue'> This is some <b style='color:red'>editable Text</b> text.  An editable text field is a user interface element that allows users to input and modify text. It is commonly used in forms, applications, and websites to collect user data. Editable text fields are a fundamental component of user interfaces, providing a flexible and interactive way for users to communicate with digital systems.: Links work as<a href='http://mail.yahoo.com'> yahoo mail</a> </p>";
     var encoded = btoa(html); // btoa base-64-encodes strings.
     TXTextControl.appendDocument(TXTextControl.StreamType.HTMLFormat, encoded);
-    //TXTextControl.addTextField(textField1);
 
-    var mergeField = new TXTextControl.MergeField();
-    mergeField.name = "company";
-    mergeField.text = "[company123]";
-
+    let textField2 = new TXTextControl.TextField("I am a NON EDITABLE TEXT.Non-editable text boxes are particularly useful in forms where certain fields need to be pre-filled with data that should not be changed by the user. For example, in an order confirmation form, the user's name and address might be displayed in non-editable text boxes to prevent any changes after the order has been placed. This ensures that the information remains accurate and consistent throughout the process. Moreover, non-editable text boxes can be used to display calculated values or results generated by the system, such as the total price of items in a shopping cart or the output of a mathematical calculation.");
+    // textField2.editable = true;
+    // TXTextControl.addTextField(textField2);
+    let mergeField = new TXTextControl.MergeField();
+    mergeField.text = "I am a merge field";
+    mergeField.name = '[[mergeField]]';
+    mergeField.highlightColor = "rgba(9, 165, 2, 0.3)";
     TXTextControl.addMergeField(mergeField);
-
-    let textField2 = new TXTextControl.TextField("I am a NON EDIOTABLE TEXT <b>Non-editable HTML Fragment</b>FIELD.Non-editable text boxes are particularly useful in forms where certain fields need to be pre-filled with data that should not be changed by the user. For example, in an order confirmation form, the user's name and address might be displayed in non-editable text boxes to prevent any changes after the order has been placed. This ensures that the information remains accurate and consistent throughout the process. Moreover, non-editable text boxes can be used to display calculated values or results generated by the system, such as the total price of items in a shopping cart or the output of a mathematical calculation.");
-    textField2.editable = false;
-    TXTextControl.addTextField(textField2);
-
-    TXTextControl.textFields.addWithText("<b>I am added</b>")
-
-
-    let x = new TXTextControl.TextField("Added Directly in Javascript");
-    TXTextControl.addTextField(x);
+    // TXTextControl.highlightColor('blue');
+    // const editable=new TXTextControl.EditableRegion();
+    // editable.setHighlightMode(TXTextControl.HighlightMode.Highlight);
+    // TXTextControl.appendDocument(TXTextControl.StreamType.HTMLFormat,  btoa(mergeField));
   }
 
   selectText() {
@@ -206,27 +206,32 @@ export class TextControlAppComponent implements OnInit {
     this.sel.setFontSize(18);
     this.sel.setText(this.replacedValue);
     TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
-    TXTextControl.textFrames.setLocation(0);
+    // TXTextControl.textFrames.setLocation(0);
     this.edited = false;
-    TXTextControl.applicationFields.add(
-      TXTextControl.ApplicationFieldFormat.HighEdit,
-      "MERGEFIELD",
-      'PLACE',
-      ['name'],
-      (af: any) => {
-        var highlightColor = "rgba(9, 165, 2, 0.3)";
-        var highlightMode = TXTextControl.HighlightMode.Always;
+    // var annotations = TXDocumentViewer.annotations.export();
+    // this.sel.addAnnotation(new annotations({
+    //   text: 'XBRL tag',
+    //   metadata: { tag: '"Description of Tag 1 related to XBRL' }
+    // }));
+    // TXTextControl.applicationFields.add(
+    //   TXTextControl.ApplicationFieldFormat.HighEdit,
+    //   "MERGEFIELD",
+    //   'PLACE',
+    //   ['name'],
+    //   (af: any) => {
+    //     var highlightColor = "rgba(9, 165, 2, 0.3)";
+    //     var highlightMode = TXTextControl.HighlightMode.Always;
 
-        af.setHighlightColor(highlightColor);
-        af.setHighlightMode(highlightMode);
-        af.setDoubledInputPosition(true);
-      }
-    );
+    //     af.setHighlightColor(highlightColor);
+    //     af.setHighlightMode(highlightMode);
+    //     af.setDoubledInputPosition(true);
+    //   }
+    // );
     this.ref.detectChanges()
   }
 
   viewMode() {
-    TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
+    TXTextControl.setEditMode(TXTextControl.EditMode.ReadOnly);
     this.ref.detectChanges();
   }
 
@@ -238,3 +243,4 @@ export class TextControlAppComponent implements OnInit {
 
 
 }
+
