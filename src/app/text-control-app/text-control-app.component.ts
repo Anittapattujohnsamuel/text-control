@@ -19,6 +19,13 @@ export class TextControlAppComponent implements OnInit {
   public editMode = '0';
   public edited = false;
   public replacedValue: any;
+  public xbrl = false;
+  public xbrlTag = '';
+  public xbrlValue = '';
+  public mergeField = false;
+  public mergeFieldText = '';
+  public mergeFieldValue = '';
+  public hyperTextLink: any;
 
   private sel: any;
 
@@ -29,16 +36,64 @@ export class TextControlAppComponent implements OnInit {
   public documentViewer?: DocumentViewerComponent;
   @ViewChild('fileInput', { static: false }) fileInput!: ElementRef;
 
+
+
   constructor(private ref: ChangeDetectorRef) { }
 
   ngOnInit(): void {
   }
 
-  ngAfterViewInit(): void {
-    // TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
+  ngAfterContentInit(): void {
+
   }
 
   loadDocument() {
+    TXTextControl.addEventListener("contextMenuOpening", function (menu: { location: string; items: any[]; }) {
+      const myMenuItem =
+      {
+        "__id": "myMenuItem",
+        "isChecked": false,
+        "isEnabled": true,
+        "text": "",
+        "imageUrl": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyNi41LjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxNiAxNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTYgMTY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJLnN0MHtmaWxsOiNGRjAwRkY7fQ0KCS5zdDF7ZmlsbDojOUIwMEZGO30NCjwvc3R5bGU+DQo8Zz4NCgk8cmVjdCB4PSIxLjUiIHk9IjEuNSIgY2xhc3M9InN0MCIgd2lkdGg9IjEzIiBoZWlnaHQ9IjEzIi8+DQoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTE0LDJ2MTJIMlYySDE0IE0xNSwxSDF2MTRoMTRWMUwxNSwxeiIvPg0KPC9nPg0KPC9zdmc+DQo=",
+        "dropDownIsScrollable": false,
+        "items": [],
+        "clickHandler": () => { alert('clicked') }
+      };
+
+      const mySeparator =
+      {
+        "__id": "mySeparator",
+        "isChecked": false,
+        "isEnabled": true,
+        "text": "",
+        "imageUrl": "",
+        "dropDownIsScrollable": false,
+        "items": [],
+      };
+      myMenuItem.text = "Custom Context Menu Item. Location: " + menu.location;
+
+      menu.items.push(mySeparator);
+      menu.items.push(myMenuItem);
+    });
+    TXTextControl.addEventListener("hypertextLinkClicked", (hypertextLinkArgs: {
+      hypertextLink: {
+        start: any;
+        length: any; target: string | URL | undefined; text: string | URL | undefined;
+      };
+    }) => {
+      this.hyperTextLink = hypertextLinkArgs;
+      // console.log(hypertextLinkArgs);
+      // var sel = TXTextControl.selection
+      // var bounds = { "start": hypertextLinkArgs.hypertextLink.start, "length": hypertextLinkArgs.hypertextLink.length }
+      // sel.setBounds(bounds)
+      this.xbrlTag = hypertextLinkArgs.hypertextLink.target as string;
+      this.xbrlValue = hypertextLinkArgs.hypertextLink.text as string;
+      this.xbrl = true;
+      this.ref.detectChanges();
+      // this.ClickMe();
+    });
+
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '../assets/data.docx', true);
     xhr.responseType = 'blob';
@@ -52,6 +107,7 @@ export class TextControlAppComponent implements OnInit {
           const base64 = data?.split(',')?.[1];
           // var encoded = btoa(data);
           // load the document
+
           TXTextControl.loadDocument(TXTextControl.StreamType.WordprocessingML, base64);
 
         };
@@ -59,6 +115,7 @@ export class TextControlAppComponent implements OnInit {
       }
     };
     xhr.send();
+    // this.subTextPart();
     TXTextControl.setEditMode(TXTextControl.EditMode.ReadAndSelect);
   }
 
@@ -240,7 +297,57 @@ export class TextControlAppComponent implements OnInit {
     this.ref.detectChanges();
   }
 
+  subTextPart() {
+    this.sel = TXTextControl.selection;
+    // sel.setForeColor("BLUE");
+    // sel.setTextBackColor("Blue");
+    // var tooltip = '<p id="tooltip">html</p>';
+    // sel.style = "display:none";
+    // TXTextControl.showHtmlDialog
+    // sel.load(TXTextControl.streamType.HTMLFormat, btoa(tooltip));
+    this.sel.getText((x: any) => {
+      this.xbrl = true;  // This 'this' is being treated as 'any'
+      this.xbrlValue = x;
+      this.ref.detectChanges();
+    });
 
+  }
+
+  addXBRL() {
+    this.xbrl = false;
+    this.sel.setText('');
+    if (this.hyperTextLink) {
+      this.hyperTextLink.target = this.xbrlTag;
+    } else {
+      TXTextControl.hypertextLinks.add(this.xbrlValue, this.xbrlTag, function (hyperLink: { setHighlightMode: (arg0: any) => void; }) {
+        hyperLink.setHighlightMode(TXTextControl.HighlightMode.Always);
+      });
+    }
+
+    this.ref.detectChanges();
+  }
+
+  addMergeField() {
+    var mergeField = new TXTextControl.MergeField;
+    mergeField.name = this.mergeFieldText;
+    mergeField.text = this.mergeFieldValue;
+    TXTextControl.addMergeField(mergeField);
+    this.sel.setText('');
+    this.mergeFieldValue = '';
+    this.mergeField = false;
+    this.mergeFieldText = '';
+
+    this.ref.detectChanges();
+  }
+
+  openMergeField() {
+    this.mergeField = true;
+    this.sel = TXTextControl.selection;
+    this.sel.getText((x: any) => {
+      this.mergeFieldValue = x;
+      this.ref.detectChanges();
+    });
+  }
 
 }
 

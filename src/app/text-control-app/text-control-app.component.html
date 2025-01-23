@@ -9,21 +9,45 @@
     <button (click)="selectText()" class="btn btn-primary">Popup Text</button>
     <button (click)="viewMode()" class="btn btn-primary">View mode</button>
     <button (click)="editDocMode()" class="btn btn-primary">Edit mode</button>
+    <button (click)="subTextPart()" class="btn btn-primary">XBRL</button>
+    <button (click)="openMergeField()" class="btn btn-primary">Add mergeField</button>
 </div>
 <div class="parent">
     <div class="child1">
         <tx-document-editor #documentEditor width="1000px" height="500px"
-            webSocketURL="wss://backend.textcontrol.com/TXWebSocket?access-token=gPBPPJ1PhqOECQBsJlVD" [editMode]="editMode"
-            [documentTargetMarkers]="documentTargetMarkers" [tableGridLines]="showGridLines">
+            webSocketURL="wss://backend.textcontrol.com/TXWebSocket?access-token=gPBPPJ1PhqOECQBsJlVD"
+            [editMode]="editMode" [documentTargetMarkers]="documentTargetMarkers" [tableGridLines]="showGridLines">
         </tx-document-editor>
     </div>
+
     <div class="child2" *ngIf="edited">
         <label for="w3review">Add Expression Here:</label>
-    
+
         <textarea [(ngModel)]="replacedValue" id="w3review" name="w3review" rows="4" cols="50">
         Please add your expression here.
         </textarea>
-    
+
         <button (click)="addExpression()">Add replacement text</button>
-      </div>
+    </div>
+    <div class="child2" *ngIf="mergeField">
+        <!-- <label for="w3review">Add Expression Here:</label> -->
+
+        <textarea [(ngModel)]="mergeFieldText" id="w3review" name="w3review" rows="4" cols="50">
+        Set mergefield value
+        </textarea>
+
+        <button (click)="addMergeField()">Add merge field</button>
+    </div>
+    <div class="child2" *ngIf="xbrl">
+        <label for="w3review" style="display: block;">Add Tag:</label>
+
+        <textarea [(ngModel)]="xbrlTag" id="w3review" name="w3review" rows="4" cols="50">
+        Please add your tag here.
+        </textarea>
+        <textarea [(ngModel)]="xbrlValue" id="w3review" name="w3review" rows="4" cols="50">
+            Please add your tag here.
+        </textarea>
+
+        <button (click)="addXBRL()">Add XBRl text</button>
+    </div>
 </div>

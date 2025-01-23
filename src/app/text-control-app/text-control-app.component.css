@@ -28,3 +28,7 @@ button{
 .parent-controller button{
     width: 150px;
 }
+
+#tooltip{
+    display: none;
+}
